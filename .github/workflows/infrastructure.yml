@@ -1,0 +1,51 @@
+name: Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - "setup/**"
+
+concurrency: infrastructure_${{ github.ref }}
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    name: Terraform plan
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          aws-region: ap-south-1
+
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.3.7
+
+      - name: Restore cache
+        id: restore
+        uses: actions/cache@v3
+        with:
+          path: |
+            .terraform
+            .terraform.lock.hcl
+          key: terraform-${{ github.sha }}
+          restore-keys: |
+            terraform-
+
+      - name: Some test command
+        run: |
+          terraform -version
+          aws s3 ls --recursive s3://terraform-backend-joe-sandbox
