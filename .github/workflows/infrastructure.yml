@@ -25,9 +25,10 @@ jobs:
           fetch-depth: 1
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: git-${{ github.sha }}
           aws-region: ap-south-1
 
       - uses: hashicorp/setup-terraform@v2
