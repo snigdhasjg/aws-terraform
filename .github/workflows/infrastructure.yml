@@ -55,4 +55,9 @@ jobs:
       - name: Plan
         working-directory: resources
         run: |
-          terraform plan
+          TF_LOG=trace terraform plan | tee -a plan.log
+
+      - name: See permission required
+        working-directory: resources
+        run: |
+          cat plan.log | grep "DEBUG: Request"
