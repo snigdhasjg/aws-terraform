@@ -7,6 +7,8 @@ on:
       - "main"
     paths-ignore:
       - "setup/**"
+      - "workflows/**"
+      - "!workflows/**/infrastructure.yml"
 
 concurrency: infrastructure_${{ github.ref }}
 
