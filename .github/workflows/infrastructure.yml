@@ -40,8 +40,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            .terraform
-            .terraform.lock.hcl
+            resources/.terraform
+            resources/.terraform.lock.hcl
           key: terraform-${{ github.sha }}
           restore-keys: |
             terraform-
@@ -49,15 +49,9 @@ jobs:
       - name: Init
         working-directory: resources
         run: |
-          terraform -version >> $GITHUB_STEP_SUMMARY
           terraform init
 
       - name: Plan
         working-directory: resources
         run: |
-          TF_LOG=trace terraform plan | tee -a plan.log
-
-      - name: See permission required
-        working-directory: resources
-        run: |
-          cat plan.log | grep "DEBUG: Request"
+          terraform plan

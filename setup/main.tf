@@ -136,22 +136,7 @@ resource "aws_iam_policy" "github_actions_create_policy" {
   name        = "github-actions-allow"
   description = "Policy to allow github action to create any resource"
 
-  policy = <<EOT
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AllowEverythingOnTerraformBackendBucket",
-            "Effect": "Allow",
-            "Action": "s3:*",
-            "Resource": [
-                "${aws_s3_bucket.terraform_backend.arn}",
-                "${aws_s3_bucket.terraform_backend.arn}/*"
-            ]
-        }
-    ]
-}
-EOT
+  policy = data.aws_iam_policy_document.github_actions_create.json
 }
 
 resource "aws_iam_role_policy_attachment" "github_actions_create_policy_attachment" {
