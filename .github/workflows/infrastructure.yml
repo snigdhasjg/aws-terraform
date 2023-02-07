@@ -40,8 +40,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            resources/.terraform
-            resources/.terraform.lock.hcl
+            **/.terraform
+            **/.terraform.lock.hcl
           key: terraform-${{ github.sha }}
           restore-keys: |
             terraform-
