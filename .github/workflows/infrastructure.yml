@@ -14,6 +14,9 @@ concurrency: infrastructure_${{ github.ref }}
 
 jobs:
   plan:
+    environment:
+      name: sandbox
+      url: 'https://ap-south-1.console.aws.amazon.com/console/home'
     runs-on: ubuntu-latest
     name: Terraform plan
     permissions:
