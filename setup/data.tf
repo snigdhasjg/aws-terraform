@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "github_actions_deny" {
     ]
     resources = [
       aws_iam_openid_connect_provider.github_actions_oidc.arn,
-      aws_iam_role.github_actions_role.arn,
+      "${aws_iam_role.github_actions_role.arn}*",
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/system/pipeline/github-actions*"
     ]
   }
