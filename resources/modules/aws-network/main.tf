@@ -43,7 +43,7 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_nat_gateway" "public_nat" {
-  count = var.create_nat_gateway ? 1 : 0
+  count         = var.create_nat_gateway ? 1 : 0
   subnet_id     = aws_subnet.public_subnet[0].id
   allocation_id = aws_eip.public_ip_nat_gw[0].id
 
@@ -59,19 +59,29 @@ resource "aws_nat_gateway" "public_nat" {
 
 resource "aws_eip" "public_ip_nat_gw" {
   count = var.create_nat_gateway ? 1 : 0
+
   tags = {
     Name = "${var.tag_prefix}-public-ip-natgw"
   }
 }
 
-resource "aws_default_route_table" "default" {
-  count = var.create_nat_gateway ? 1 : 0
+resource "aws_default_route_table" "default_with_nat" {
+  count                  = var.create_nat_gateway ? 1 : 0
   default_route_table_id = aws_vpc.vpc.default_route_table_id
 
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.public_nat[0].id
   }
+
+  tags = {
+    Name = "${var.tag_prefix}-default-route-table"
+  }
+}
+
+resource "aws_default_route_table" "default_without_nat" {
+  count                  = var.create_nat_gateway ? 0 : 1
+  default_route_table_id = aws_vpc.vpc.default_route_table_id
 
   tags = {
     Name = "${var.tag_prefix}-default-route-table"
@@ -102,6 +112,14 @@ resource "aws_default_security_group" "default" {
     to_port     = 0
   }
 
+  ingress {
+    description = "Allow all traffic from Joe public IP"
+    protocol    = -1
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["${chomp(data.http.my-public-ip.body)}/32"]
+  }
+
   egress {
     description = "Allow all ipv4 to connect to"
     from_port   = 0
@@ -128,4 +146,47 @@ resource "aws_route_table_association" "public_route_table_association" {
 
   subnet_id      = each.value.id
   route_table_id = aws_route_table.public_route_table.id
+}
+
+resource "aws_acm_certificate" "cert" {
+  private_key      = var.cert.key
+  certificate_body = var.cert.certificate
+}
+
+resource "aws_acm_certificate" "root-cert" {
+  private_key      = var.root-cert.key
+  certificate_body = var.root-cert.certificate
+}
+
+resource "aws_cloudwatch_log_group" "vpn-log" {
+  name = "${var.tag_prefix}-vpn-log"
+  retention_in_days = 3
+}
+
+resource "aws_ec2_client_vpn_endpoint" "vpn_endpoint" {
+  client_cidr_block      = var.vpn_cidr_block
+  server_certificate_arn = aws_acm_certificate.cert.arn
+  split_tunnel = true
+  self_service_portal = "enabled"
+
+  authentication_options {
+    type                       = "certificate-authentication"
+    root_certificate_chain_arn = aws_acm_certificate.root-cert.arn
+  }
+
+  connection_log_options {
+    enabled = true
+    cloudwatch_log_group = aws_cloudwatch_log_group.vpn-log.name
+  }
+
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "${var.tag_prefix}-vpn"
+  }
+}
+
+resource "aws_ec2_client_vpn_network_association" "vpn_endpoint_vpc_subnet_association" {
+  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.vpn_endpoint.id
+  subnet_id              = aws_subnet.public_subnet[0].id
 }
