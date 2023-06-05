@@ -8,28 +8,38 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-resource "aws_subnet" "public_subnet" {
-  for_each = {for idx, az in range(var.max_no_of_public_subnet) : az => idx}
+resource "aws_subnet" "public_subnets" {
+  for_each = {
+    for idx in range(var.no_of_public_subnet) : idx => {
+      availability_zone = data.aws_availability_zones.this.names[idx % length(data.aws_availability_zones.this.names)]
+      cidr_block        = cidrsubnet(local.public_subnets_allocated_cidr, ceil(pow(var.no_of_public_subnet, 1/2)), idx)
+    }
+  }
 
   vpc_id            = aws_vpc.vpc.id
-  availability_zone = local.availability_zones[each.key % length(local.availability_zones)]
-  cidr_block        = cidrsubnet(var.vpc_cidr_block, local.no_of_bit_to_fix, 0 + each.key)
+  availability_zone = each.value.availability_zone
+  cidr_block        = each.value.cidr_block
 
   tags = {
-    Name         = "${var.tag_prefix}-public-subnet-${trimprefix(local.availability_zones[each.key % length(local.availability_zones)], data.aws_region.current.name)}"
+    Name         = "${var.tag_prefix}-public-subnet-${trimprefix(each.value.availability_zone, data.aws_region.this.name)}"
     connectivity = "public"
   }
 }
 
 resource "aws_subnet" "private_subnets" {
-  for_each = {for idx, az in range(var.max_no_of_private_subnet) : az => idx}
+  for_each = {
+    for idx in range(var.no_of_private_subnet) : idx => {
+      availability_zone = data.aws_availability_zones.this.names[idx % length(data.aws_availability_zones.this.names)]
+      cidr_block        = cidrsubnet(local.private_subnets_allocated_cidr, ceil(pow(var.no_of_private_subnet, 1/2)), idx)
+    }
+  }
 
   vpc_id            = aws_vpc.vpc.id
-  availability_zone = local.availability_zones[each.key % length(local.availability_zones)]
-  cidr_block        = cidrsubnet(var.vpc_cidr_block, local.no_of_bit_to_fix, var.max_no_of_public_subnet + each.key)
+  availability_zone = each.value.availability_zone
+  cidr_block        = each.value.cidr_block
 
   tags = {
-    Name         = "${var.tag_prefix}-private-subnet-${trimprefix(local.availability_zones[each.key % length(local.availability_zones)], data.aws_region.current.name)}"
+    Name         = "${var.tag_prefix}-private-subnet-${trimprefix(each.value.availability_zone, data.aws_region.this.name)}"
     connectivity = "private"
   }
 }
@@ -42,9 +52,26 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
+resource "aws_default_route_table" "this" {
+  default_route_table_id = aws_vpc.vpc.default_route_table_id
+
+  tags = {
+    Name = "${var.tag_prefix}-default-private-route-table"
+  }
+}
+
+resource "aws_eip" "public_ip_nat_gw" {
+  count = var.create_nat_gateway ? 1 : 0
+
+  tags = {
+    Name = "${var.tag_prefix}-public-ip-natgw"
+  }
+}
+
 resource "aws_nat_gateway" "public_nat" {
-  count         = var.create_nat_gateway ? 1 : 0
-  subnet_id     = aws_subnet.public_subnet[0].id
+  count = var.create_nat_gateway ? 1 : 0
+
+  subnet_id     = aws_subnet.public_subnets[0].id
   allocation_id = aws_eip.public_ip_nat_gw[0].id
 
   depends_on = [
@@ -57,35 +84,10 @@ resource "aws_nat_gateway" "public_nat" {
   }
 }
 
-resource "aws_eip" "public_ip_nat_gw" {
-  count = var.create_nat_gateway ? 1 : 0
-
-  tags = {
-    Name = "${var.tag_prefix}-public-ip-natgw"
-  }
-}
-
-resource "aws_default_route_table" "default_with_nat" {
-  count                  = var.create_nat_gateway ? 1 : 0
-  default_route_table_id = aws_vpc.vpc.default_route_table_id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.public_nat[0].id
-  }
-
-  tags = {
-    Name = "${var.tag_prefix}-default-route-table"
-  }
-}
-
-resource "aws_default_route_table" "default_without_nat" {
-  count                  = var.create_nat_gateway ? 0 : 1
-  default_route_table_id = aws_vpc.vpc.default_route_table_id
-
-  tags = {
-    Name = "${var.tag_prefix}-default-route-table"
-  }
+resource "aws_route_table_association" "nat_association" {
+  count          = var.create_nat_gateway ? 1 : 0
+  route_table_id = aws_default_route_table.this.id
+  gateway_id     = aws_nat_gateway.public_nat[0].id
 }
 
 resource "aws_route_table" "public_route_table" {
@@ -101,7 +103,7 @@ resource "aws_route_table" "public_route_table" {
   }
 }
 
-resource "aws_default_security_group" "default" {
+resource "aws_default_security_group" "this" {
   vpc_id = aws_vpc.vpc.id
 
   ingress {
@@ -121,19 +123,11 @@ resource "aws_default_security_group" "default" {
   }
 
   egress {
-    description = "Allow all ipv4 to connect to"
+    description = "Allow all external traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    description      = "Allow all ipv6 to connect to"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    ipv6_cidr_blocks = ["::/0"]
   }
 
   tags = {
@@ -142,51 +136,99 @@ resource "aws_default_security_group" "default" {
 }
 
 resource "aws_route_table_association" "public_route_table_association" {
-  for_each = aws_subnet.public_subnet
+  for_each = aws_subnet.public_subnets
 
   subnet_id      = each.value.id
   route_table_id = aws_route_table.public_route_table.id
 }
 
-resource "aws_acm_certificate" "cert" {
-  private_key      = var.cert.key
-  certificate_body = var.cert.certificate
-}
+resource "aws_security_group" "vpc_endpoint_interface_sg" {
+  count = length(var.private_endpoint_interfaces) > 0 ? 1 : 0
 
-resource "aws_acm_certificate" "root-cert" {
-  private_key      = var.root-cert.key
-  certificate_body = var.root-cert.certificate
-}
-
-resource "aws_cloudwatch_log_group" "vpn-log" {
-  name = "${var.tag_prefix}-vpn-log"
-  retention_in_days = 3
-}
-
-resource "aws_ec2_client_vpn_endpoint" "vpn_endpoint" {
-  client_cidr_block      = var.vpn_cidr_block
-  server_certificate_arn = aws_acm_certificate.cert.arn
-  split_tunnel = true
-  self_service_portal = "enabled"
-
-  authentication_options {
-    type                       = "certificate-authentication"
-    root_certificate_chain_arn = aws_acm_certificate.root-cert.arn
-  }
-
-  connection_log_options {
-    enabled = true
-    cloudwatch_log_group = aws_cloudwatch_log_group.vpn-log.name
-  }
-
+  name   = "vpc-endpoint-interface-sg"
   vpc_id = aws_vpc.vpc.id
 
+  ingress {
+    description = "Allow all traffic from same VPC"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [aws_vpc.vpc.cidr_block]
+  }
+
+  ingress {
+    description = "Allow all traffic within itself"
+    protocol    = -1
+    self        = true
+    from_port   = 0
+    to_port     = 0
+  }
+
+  egress {
+    description = "Allow all external traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   tags = {
-    Name = "${var.tag_prefix}-vpn"
+    Name = "${var.tag_prefix}-vpc-endpoint-interface-sg"
   }
 }
 
-resource "aws_ec2_client_vpn_network_association" "vpn_endpoint_vpc_subnet_association" {
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.vpn_endpoint.id
-  subnet_id              = aws_subnet.public_subnet[0].id
+resource "aws_vpc_endpoint" "private_endpoint_interfaces" {
+  for_each = var.private_endpoint_interfaces
+
+  vpc_id       = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${data.aws_region.this.name}.${each.key}"
+
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = [aws_subnet.public_subnets[0].id]
+
+  security_group_ids = [
+    aws_security_group.vpc_endpoint_interface_sg[0].id
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.tag_prefix}-${each.key}-interface"
+  }
+}
+
+resource "aws_vpc_endpoint" "private_endpoint_gateways" {
+  for_each = var.private_endpoint_gateways
+
+  vpc_id       = aws_vpc.vpc.id
+  service_name = "com.amazonaws.${data.aws_region.this.name}.${each.key}"
+
+  vpc_endpoint_type = "Gateway"
+
+  tags = {
+    Name = "${var.tag_prefix}-${each.key}-gateway"
+  }
+}
+
+resource "aws_vpc_endpoint_route_table_association" "private_endpoint_gateway_association" {
+  for_each = {
+    for object in flatten([
+      for vpc_service, vpc_gateway in aws_vpc_endpoint.private_endpoint_gateways : [
+        for route_type, route_table_id in {
+          default_route = aws_default_route_table.this.id
+          public_route  = aws_route_table.public_route_table.id
+        } : {
+          combined_key   = "${vpc_service}_${route_type}",
+          route_table_id = route_table_id,
+          vpc_gateway_id = vpc_gateway.id
+        }
+      ]
+    ]) : object.combined_key => {
+      route_table_id = object.route_table_id,
+      vpc_gateway_id = object.vpc_gateway_id
+    }
+  }
+
+  route_table_id  = each.value.route_table_id
+  vpc_endpoint_id = each.value.vpc_gateway_id
 }

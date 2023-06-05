@@ -1,8 +1,8 @@
-data "aws_availability_zones" "az" {
+data "aws_availability_zones" "this" {
   state = "available"
 }
 
-data "aws_region" "current" {}
+data "aws_region" "this" {}
 
 data "http" "my-public-ip" {
   url = "https://ipv4.icanhazip.com"

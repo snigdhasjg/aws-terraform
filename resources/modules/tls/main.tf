@@ -6,7 +6,7 @@ resource "tls_cert_request" "this" {
   private_key_pem = tls_private_key.this.private_key_pem
 
   subject {
-    common_name         = "*.ap-south-1.amazonaws.com"
+    common_name         = var.cert_details.common_name
     country             = "IN"
     province            = "WB"
     locality            = "Kolkata"
@@ -14,10 +14,7 @@ resource "tls_cert_request" "this" {
     organizational_unit = "Mumbai"
   }
 
-  dns_names = [
-    "localhost",
-    "*.joe.in"
-  ]
+  dns_names = var.cert_details.dns_names
 }
 
 resource "tls_locally_signed_cert" "this" {
@@ -60,4 +57,16 @@ resource "local_sensitive_file" "generated_cert" {
 resource "local_sensitive_file" "generated_key" {
   filename = "${path.module}/cert/${replace(tls_cert_request.this.subject[0].common_name, "^\\*\\.", "")}.key"
   content  = tls_private_key.this.private_key_pem
+}
+
+resource "null_resource" "delete_cert_dir" {
+  depends_on = [
+    local_sensitive_file.generated_cert,
+    local_sensitive_file.generated_key
+  ]
+
+  provisioner "local-exec" {
+    when = destroy
+    command = "rm -r ${path.module}/cert"
+  }
 }

@@ -30,5 +30,4 @@ override.tf.json
 # example: *tfplan*
 
 *.key
-*.pem
 *.crt

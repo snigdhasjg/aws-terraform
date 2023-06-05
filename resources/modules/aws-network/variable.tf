@@ -1,22 +1,13 @@
 variable "create_nat_gateway" {
   description = "Flag to create nat_gateway for private subnet"
-  type = bool
+  type        = bool
 }
 
 variable "vpc_cidr_block" {
   description = "CIDR block of VPC"
   type        = string
   validation {
-    condition = can(cidrhost(var.vpc_cidr_block, 32))
-    error_message = "Must be valid IPv4 CIDR."
-  }
-}
-
-variable "vpn_cidr_block" {
-  description = "CIDR block of VPC"
-  type        = string
-  validation {
-    condition = can(cidrhost(var.vpn_cidr_block, 32))
+    condition     = can(cidrhost(var.vpc_cidr_block, 32))
     error_message = "Must be valid IPv4 CIDR."
   }
 }
@@ -26,34 +17,35 @@ variable "tag_prefix" {
   type        = string
 }
 
-variable "max_no_of_public_subnet" {
+variable "no_of_public_subnet" {
   description = "No of public subnet to create"
   type        = number
+  validation {
+    condition     = var.no_of_public_subnet >= 1
+    error_message = "Need at-least one"
+  }
 }
 
-variable "max_no_of_private_subnet" {
+variable "no_of_private_subnet" {
   description = "No of private subnet to create"
   type        = number
+  validation {
+    condition     = var.no_of_private_subnet >= 1
+    error_message = "Need at-least one"
+  }
 }
 
-variable "cert" {
-  description = "Locally generated certificate"
-  type        = object({
-    certificate = string
-    key = string
-  })
+variable "private_endpoint_interfaces" {
+  description = "Types of private endpoint interfaces to create"
+  type = set(string)
 }
 
-variable "root-cert" {
-  description = "Locally generated root certificate"
-  type        = object({
-    certificate = string
-    key = string
-  })
+variable "private_endpoint_gateways" {
+  description = "Types of private endpoint gateways to create"
+  type = set(string)
 }
-
 
 locals {
-  no_of_bit_to_fix   = ceil(pow(var.max_no_of_private_subnet + var.max_no_of_public_subnet, 1/2))
-  availability_zones = slice(data.aws_availability_zones.az.names, 0, 3)
+  private_subnets_allocated_cidr = cidrsubnet(var.vpc_cidr_block, 1, 0)
+  public_subnets_allocated_cidr  = cidrsubnet(var.vpc_cidr_block, 1, 1)
 }
