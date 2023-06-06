@@ -109,11 +109,11 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
     }
 
     condition {
-      test     = "StringLike"
+      test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:snigdhasjg/aws-terraform:*"
+        "repo:snigdhasjg/aws-terraform:environment:sandbox"
       ]
     }
   }
