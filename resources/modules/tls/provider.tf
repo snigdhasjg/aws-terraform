@@ -3,8 +3,5 @@ terraform {
     tls = {
       version = "~> 4.0.4"
     }
-    local = {
-      version = "~> 2.4.0"
-    }
   }
 }

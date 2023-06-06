@@ -1,3 +1,4 @@
+# https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html
 resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_support   = true
@@ -231,50 +232,4 @@ resource "aws_vpc_endpoint_route_table_association" "private_endpoint_gateway_as
 
   route_table_id  = each.value.route_table_id
   vpc_endpoint_id = each.value.vpc_gateway_id
-}
-
-resource "aws_acm_certificate" "server-cert" {
-  private_key      = var.server-cert.key
-  certificate_body = var.server-cert.certificate
-  certificate_chain = var.server-cert.ca_certificate
-}
-
-resource "aws_acm_certificate" "client-cert" {
-  private_key      = var.client-cert.key
-  certificate_body = var.client-cert.certificate
-  certificate_chain = var.client-cert.ca_certificate
-}
-
-resource "aws_cloudwatch_log_group" "vpn-log" {
-  name              = "${var.tag_prefix}-vpn-log"
-  retention_in_days = 3
-}
-
-resource "aws_ec2_client_vpn_endpoint" "vpn_endpoint" {
-  client_cidr_block      = var.vpn_cidr_block
-  server_certificate_arn = aws_acm_certificate.server-cert.arn
-  split_tunnel           = true
-  self_service_portal    = "enabled"
-
-  authentication_options {
-    type                       = "certificate-authentication"
-    root_certificate_chain_arn = aws_acm_certificate.client-cert.arn
-  }
-
-  connection_log_options {
-    enabled              = true
-    cloudwatch_log_group = aws_cloudwatch_log_group.vpn-log.name
-  }
-
-  vpc_id   = aws_vpc.vpc.id
-  vpn_port = 1194
-
-  tags = {
-    Name = "${var.tag_prefix}-vpn"
-  }
-}
-
-resource "aws_ec2_client_vpn_network_association" "vpn_endpoint_vpc_subnet_association" {
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.vpn_endpoint.id
-  subnet_id              = aws_subnet.public_subnets[0].id
 }

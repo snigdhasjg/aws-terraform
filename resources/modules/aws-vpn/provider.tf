@@ -9,7 +9,7 @@ terraform {
 provider "aws" {
   default_tags {
     tags = {
-      component   = "aws-network"
+      component   = "aws-vpn"
       environment = "sandbox"
       owner       = "Snigdhajyoti Ghosh"
     }

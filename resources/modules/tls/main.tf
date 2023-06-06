@@ -6,7 +6,7 @@ resource "tls_cert_request" "this" {
   private_key_pem = tls_private_key.this.private_key_pem
 
   subject {
-    common_name         = var.cert_details.common_name
+    common_name         = var.certificate_common_name
     country             = "IN"
     province            = "WB"
     locality            = "Kolkata"
@@ -14,7 +14,7 @@ resource "tls_cert_request" "this" {
     organizational_unit = "Mumbai"
   }
 
-  dns_names = var.cert_details.dns_names
+  dns_names = var.certificate_dns_names
 }
 
 resource "tls_locally_signed_cert" "this" {
@@ -67,6 +67,6 @@ resource "null_resource" "delete_cert_dir" {
 
   provisioner "local-exec" {
     when = destroy
-    command = "rm -r ${path.module}/cert"
+    command = "[ \"$(ls -A ${path.module}/cert)\" ] || rm -r ${path.module}/cert"
   }
 }
