@@ -67,6 +67,6 @@ resource "null_resource" "delete_cert_dir" {
 
   provisioner "local-exec" {
     when = destroy
-    command = "[ \"$(ls -A ${path.module}/cert)\" ] || rm -r ${path.module}/cert"
+    command = "rm -r ${path.module}/cert || true"
   }
 }

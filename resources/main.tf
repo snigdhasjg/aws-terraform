@@ -1,23 +1,23 @@
-module "client-tls" {
-  source = "./modules/tls"
+#module "client-tls" {
+#  source = "./modules/tls"
+#
+#  certificate_common_name = "joe.in"
+#  certificate_dns_names   = [
+#    "localhost",
+#    "*.joe.in"
+#  ]
+#}
 
-  certificate_common_name = "joe.in"
-  certificate_dns_names   = [
-    "localhost",
-    "*.joe.in"
-  ]
-}
-
-module "server-tls" {
-  source = "./modules/tls"
-
-  certificate_common_name = "amazonaws.com"
-  certificate_dns_names   = [
-    "*.amazonaws.com",
-    "*.local",
-    "*.internal"
-  ]
-}
+#module "server-tls" {
+#  source = "./modules/tls"
+#
+#  certificate_common_name = "amazonaws.com"
+#  certificate_dns_names   = [
+#    "*.amazonaws.com",
+#    "*.local",
+#    "*.internal"
+#  ]
+#}
 
 module "aws-network" {
   source = "./modules/aws-network"
@@ -37,12 +37,12 @@ module "aws-network" {
   ]
 }
 
-module "aws-vpn" {
-  source = "./modules/aws-vpn"
-
-  vpn_cidr_block = "10.3.0.0/22"
-  client-cert    = module.client-tls.cert
-  server-cert    = module.server-tls.cert
-  tag_prefix     = "joe"
-  vpc-id         = module.aws-network.vpc_id
-}
+#module "aws-vpn" {
+#  source = "./modules/aws-vpn"
+#
+#  vpn_cidr_block = "10.3.0.0/22"
+#  client-cert    = module.client-tls.cert
+#  server-cert    = module.server-tls.cert
+#  tag_prefix     = "joe"
+#  vpc-id         = module.aws-network.vpc_id
+#}
