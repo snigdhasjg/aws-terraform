@@ -37,6 +37,15 @@ module "aws-network" {
   ]
 }
 
+#module "aws-openvpn" {
+#  source = "./modules/aws-openvpn"
+#
+#  tag_prefix  = "joe"
+#  vpc-id      = module.aws-network.vpc_id
+#  server-cert = module.server-tls.cert
+#  client-cert = module.client-tls.cert
+#}
+
 #module "aws-vpn" {
 #  source = "./modules/aws-vpn"
 #
@@ -45,4 +54,8 @@ module "aws-network" {
 #  server-cert    = module.server-tls.cert
 #  tag_prefix     = "joe"
 #  vpc-id         = module.aws-network.vpc_id
+#}
+
+#output "ssh_command" {
+#  value = module.aws-openvpn.ssh_command
 #}
