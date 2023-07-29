@@ -50,3 +50,7 @@ data "aws_iam_policy" "ssm_managed_policy" {
 data "http" "my-public-ip" {
   url = "https://ipv4.icanhazip.com"
 }
+
+locals {
+  my-public-cidr = "${chomp(data.http.my-public-ip.body)}/32"
+}

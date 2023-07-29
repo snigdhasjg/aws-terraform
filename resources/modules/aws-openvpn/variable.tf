@@ -18,12 +18,12 @@ variable "server-cert" {
   })
 }
 
-variable "client-cert" {
-  description = "Locally generated root certificate"
-  type        = object({
-    certificate    = string
-    key            = string
-    ca_certificate = string
-    common_name    = string
-  })
-}
+#variable "client-cert" {
+#  description = "Locally generated root certificate"
+#  type        = object({
+#    certificate    = string
+#    key            = string
+#    ca_certificate = string
+#    common_name    = string
+#  })
+#}

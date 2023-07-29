@@ -43,7 +43,6 @@ module "aws-network" {
 #  tag_prefix  = "joe"
 #  vpc-id      = module.aws-network.vpc_id
 #  server-cert = module.server-tls.cert
-#  client-cert = module.client-tls.cert
 #}
 
 #module "aws-vpn" {
