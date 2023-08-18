@@ -37,6 +37,15 @@ module "aws-network" {
   ]
 }
 
+module "aws-ec2" {
+  source = "./modules/aws-ec2"
+
+
+  instance_type = "m6a.large"
+  tag_prefix    = "joe"
+  vpc_id        = module.aws-network.vpc_id
+}
+
 #module "aws-openvpn" {
 #  source = "./modules/aws-openvpn"
 #
