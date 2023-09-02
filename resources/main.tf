@@ -41,9 +41,10 @@ module "aws-ec2" {
   source = "./modules/aws-ec2"
 
 
-  instance_type = "m6a.large"
+  instance_type = "g4dn.xlarge"
   tag_prefix    = "joe"
   vpc_id        = module.aws-network.vpc_id
+  ami_type      = "AMAZON_LINUX_2"
 }
 
 #module "aws-openvpn" {
@@ -64,6 +65,10 @@ module "aws-ec2" {
 #  vpc-id         = module.aws-network.vpc_id
 #}
 
-#output "ssh_command" {
-#  value = module.aws-openvpn.ssh_command
+#module "aws-s3" {
+#  source = "./modules/aws-s3"
+#
+#  bucket_name             = "cross-account-bucket"
+#  tag_prefix              = "joe"
+#  cross_account_principal = "arn:aws:iam::123456789012:role/ec2-service-role"
 #}

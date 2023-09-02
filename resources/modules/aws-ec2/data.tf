@@ -43,10 +43,51 @@ data "aws_ami" "windows_server_2019" {
   }
 }
 
+data "aws_ami" "amz_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+  name_regex  = "^amzn2-ami-kernel-5.10-hvm-.*-x86_64.*"
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "ena-support"
+    values = [true]
+  }
+}
+
+data "aws_iam_policy_document" "ec2_role_policy" {
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+
+    resources = [
+      "arn:aws:s3:::joe.in",
+      "arn:aws:s3:::joe.in/images/*"
+    ]
+  }
+}
+
 data "http" "my-public-ip" {
   url = "https://ipv4.icanhazip.com"
 }
 
 locals {
   my-public-cidr = "${chomp(data.http.my-public-ip.body)}/32"
+  ami_id         = {
+    WINDOWS_SERVER_2019 = data.aws_ami.windows_server_2019.id
+    AMAZON_LINUX_2      = data.aws_ami.amz_linux.id
+  }
 }
