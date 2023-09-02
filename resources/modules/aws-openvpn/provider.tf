@@ -11,7 +11,7 @@ provider "aws" {
     tags = {
       component   = "aws-openvpn"
       environment = "sandbox"
-      owner       = "Snigdhajyoti Ghosh"
+      owner       = var.owner
     }
   }
 }

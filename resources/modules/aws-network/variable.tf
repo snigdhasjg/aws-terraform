@@ -1,3 +1,13 @@
+variable "owner" {
+  description = "Owner of the resource"
+  type        = string
+}
+
+variable "tag_prefix" {
+  description = "Resource tag prefix"
+  type        = string
+}
+
 variable "create_nat_gateway" {
   description = "Flag to create nat_gateway for private subnet"
   type        = bool
@@ -10,11 +20,6 @@ variable "vpc_cidr_block" {
     condition     = can(cidrhost(var.vpc_cidr_block, 32))
     error_message = "Must be valid IPv4 CIDR."
   }
-}
-
-variable "tag_prefix" {
-  description = "Resource tag prefix"
-  type        = string
 }
 
 variable "no_of_public_subnet" {

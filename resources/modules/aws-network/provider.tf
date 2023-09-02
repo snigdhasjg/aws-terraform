@@ -11,7 +11,7 @@ provider "aws" {
     tags = {
       component   = "aws-network"
       environment = "sandbox"
-      owner       = "Snigdhajyoti Ghosh"
+      owner       = var.owner
     }
   }
 }

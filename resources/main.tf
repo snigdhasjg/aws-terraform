@@ -1,3 +1,8 @@
+locals {
+  owner      = "Snigdhajyoti Ghosh"
+  tag_prefix = "joe"
+}
+
 #module "client-tls" {
 #  source = "./modules/tls"
 #
@@ -22,9 +27,10 @@
 module "aws-network" {
   source = "./modules/aws-network"
 
+  owner                     = local.owner
+  tag_prefix                = local.tag_prefix
   create_nat_gateway        = false
   vpc_cidr_block            = "10.2.0.0/20"
-  tag_prefix                = "joe"
   no_of_private_subnet      = 3
   no_of_public_subnet       = 2
   private_endpoint_gateways = [
@@ -40,9 +46,9 @@ module "aws-network" {
 module "aws-ec2" {
   source = "./modules/aws-ec2"
 
-
+  owner         = local.owner
+  tag_prefix    = local.tag_prefix
   instance_type = "g4dn.xlarge"
-  tag_prefix    = "joe"
   vpc_id        = module.aws-network.vpc_id
   ami_type      = "AMAZON_LINUX_2"
 }
@@ -50,7 +56,8 @@ module "aws-ec2" {
 #module "aws-openvpn" {
 #  source = "./modules/aws-openvpn"
 #
-#  tag_prefix  = "joe"
+#  owner       = local.owner
+#  tag_prefix  = local.tag_prefix
 #  vpc-id      = module.aws-network.vpc_id
 #  server-cert = module.server-tls.cert
 #}
@@ -58,17 +65,19 @@ module "aws-ec2" {
 #module "aws-vpn" {
 #  source = "./modules/aws-vpn"
 #
+#  owner          = local.owner
+#  tag_prefix     = local.tag_prefix
 #  vpn_cidr_block = "10.3.0.0/22"
 #  client-cert    = module.client-tls.cert
 #  server-cert    = module.server-tls.cert
-#  tag_prefix     = "joe"
 #  vpc-id         = module.aws-network.vpc_id
 #}
 
 #module "aws-s3" {
 #  source = "./modules/aws-s3"
 #
+#  owner                   = local.owner
+#  tag_prefix              = local.tag_prefix
 #  bucket_name             = "cross-account-bucket"
-#  tag_prefix              = "joe"
 #  cross_account_principal = "arn:aws:iam::123456789012:role/ec2-service-role"
 #}

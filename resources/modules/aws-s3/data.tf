@@ -32,6 +32,7 @@ data "aws_iam_policy_document" "allow_access_from_another_account" {
 
     resources = [
       "${aws_s3_bucket.this.arn}/model/*",
+      "${aws_s3_bucket.this.arn}/generated/*",
     ]
   }
 }
