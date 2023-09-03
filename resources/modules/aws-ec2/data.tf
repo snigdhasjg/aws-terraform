@@ -74,8 +74,30 @@ data "aws_iam_policy_document" "ec2_role_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::joe.in",
-      "arn:aws:s3:::joe.in/images/*"
+      "arn:aws:s3:::twer-cross-account-bucket",
+      "arn:aws:s3:::twer-cross-account-bucket/*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectAcl",
+    ]
+
+    resources = [
+      "arn:aws:s3:::twer-cross-account-bucket/macabrEquinox/*",
+      "arn:aws:s3:::twer-cross-account-bucket/generated/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "kms:Decrypt"
+    ]
+
+    resources = [
+      "arn:aws:kms:ap-south-1:121859831222:alias/twer-cross-account-bucket-key"
     ]
   }
 }

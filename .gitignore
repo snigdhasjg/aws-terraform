@@ -34,3 +34,4 @@ override.tf.json
 *.pem
 *.p12
 *.ovpn
+**/aws-s3/data/*

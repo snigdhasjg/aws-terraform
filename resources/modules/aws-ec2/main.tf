@@ -58,7 +58,7 @@ resource "local_file" "private_key_file" {
 }
 
 resource "aws_key_pair" "ec2_key" {
-  key_name   = "${var.tag_prefix}-windows-ec2"
+  key_name   = "${var.tag_prefix}-ec2-key"
   public_key = tls_private_key.rsa_key.public_key_openssh
 }
 
@@ -79,12 +79,13 @@ resource "aws_iam_role" "ec2_service_role" {
   })
 
   inline_policy {
+    name = "${var.tag_prefix}-ec2-service-role-policy"
     policy = data.aws_iam_policy_document.ec2_role_policy.json
   }
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "${var.tag_prefix}-windows-ec2-instance-profile"
+  name = "${var.tag_prefix}-ec2-service-role-instance-profile"
   role = aws_iam_role.ec2_service_role.name
 }
 
@@ -96,7 +97,12 @@ resource "aws_instance" "this" {
   instance_initiated_shutdown_behavior = "terminate"
   iam_instance_profile                 = aws_iam_instance_profile.ec2_profile.name
   associate_public_ip_address          = true
-  get_password_data                    = true
+  get_password_data                    = var.ami_type == "WINDOWS_SERVER_2019"
+
+  root_block_device {
+    volume_type = "gp3"
+    volume_size = 200
+  }
 
   vpc_security_group_ids = [
     aws_security_group.ec2_sg.id
