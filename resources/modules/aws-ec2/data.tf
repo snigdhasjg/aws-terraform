@@ -46,7 +46,7 @@ data "aws_ami" "windows_server_2019" {
 data "aws_ami" "amz_linux" {
   most_recent = true
   owners      = ["amazon"]
-  name_regex  = "^amzn2-ami-kernel-5.10-hvm-.*-x86_64.*"
+  name_regex  = var.is_nvdia_enabled ? "^Deep Learning Base AMI \\(Amazon Linux 2\\).*" : "^amzn2-ami-kernel-5.10-hvm-.*-x86_64.*"
 
   filter {
     name   = "architecture"
@@ -87,29 +87,21 @@ data "aws_iam_policy_document" "ec2_role_policy" {
 
     resources = [
       "arn:aws:s3:::twer-cross-account-bucket/macabrEquinox/*",
-      "arn:aws:s3:::twer-cross-account-bucket/generated/*",
+      "arn:aws:s3:::twer-cross-account-bucket/generated*",
     ]
   }
 
   statement {
     actions = [
-      "kms:Decrypt"
+      "kms:*"
     ]
 
     resources = [
-      "arn:aws:kms:ap-south-1:121859831222:alias/twer-cross-account-bucket-key"
+      "arn:aws:kms:ap-south-1:121859831222:key/*"
     ]
   }
 }
 
 data "http" "my-public-ip" {
   url = "https://ipv4.icanhazip.com"
-}
-
-locals {
-  my-public-cidr = "${chomp(data.http.my-public-ip.body)}/32"
-  ami_id         = {
-    WINDOWS_SERVER_2019 = data.aws_ami.windows_server_2019.id
-    AMAZON_LINUX_2      = data.aws_ami.amz_linux.id
-  }
 }

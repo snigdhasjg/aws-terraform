@@ -46,11 +46,12 @@ module "aws-network" {
 module "aws-ec2" {
   source = "./modules/aws-ec2"
 
-  owner         = local.owner
-  tag_prefix    = local.tag_prefix
-  instance_type = "g4dn.xlarge"
-  vpc_id        = module.aws-network.vpc_id
-  ami_type      = "AMAZON_LINUX_2"
+  owner            = local.owner
+  tag_prefix       = local.tag_prefix
+  instance_type    = "g4dn.2xlarge"
+  vpc_id           = module.aws-network.vpc_id
+  ami_type         = "AMAZON_LINUX_2"
+  is_nvdia_enabled = true
 }
 
 #module "aws-openvpn" {
@@ -73,11 +74,11 @@ module "aws-ec2" {
 #  vpc-id         = module.aws-network.vpc_id
 #}
 
-#module "aws-s3" {
-#  source = "./modules/aws-s3"
-#
-#  owner                   = local.owner
-#  tag_prefix              = local.tag_prefix
-#  bucket_name             = "twer-cross-account-bucket"
-#  cross_account_principal = "160071257600"
-#}
+module "aws-s3" {
+  source = "./modules/aws-s3"
+
+  owner                   = local.owner
+  tag_prefix              = local.tag_prefix
+  bucket_name             = "twer-cross-account-bucket"
+  cross_account_principal = "160071257600"
+}

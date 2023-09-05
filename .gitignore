@@ -35,3 +35,4 @@ override.tf.json
 *.p12
 *.ovpn
 **/aws-s3/data/*
+!.gitkeep
