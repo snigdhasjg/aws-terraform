@@ -24,7 +24,7 @@ resource "aws_security_group" "vpn_endpoint_sg" {
     protocol    = "udp"
     from_port   = 1194
     to_port     = 1194
-    cidr_blocks = ["${chomp(data.http.my-public-ip.body)}/32"]
+    cidr_blocks = ["${chomp(data.http.my-public-ip.response_body)}/32"]
   }
 
   ingress {

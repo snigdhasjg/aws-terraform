@@ -34,7 +34,7 @@ variable "is_nvdia_enabled" {
 }
 
 locals {
-  my-public-cidr = "${chomp(data.http.my-public-ip.body)}/32"
+  my-public-cidr = "${chomp(data.http.my-public-ip.response_body)}/32"
   ami_id         = {
     WINDOWS_SERVER_2019 = data.aws_ami.windows_server_2019.id
     AMAZON_LINUX_2      = data.aws_ami.amz_linux.id

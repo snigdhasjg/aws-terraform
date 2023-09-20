@@ -87,6 +87,7 @@ resource "aws_nat_gateway" "public_nat" {
 
 resource "aws_route_table_association" "nat_association" {
   count          = var.create_nat_gateway ? 1 : 0
+
   route_table_id = aws_default_route_table.this.id
   gateway_id     = aws_nat_gateway.public_nat[0].id
 }
@@ -120,7 +121,7 @@ resource "aws_default_security_group" "this" {
     protocol    = -1
     from_port   = 0
     to_port     = 0
-    cidr_blocks = ["${chomp(data.http.my-public-ip.body)}/32"]
+    cidr_blocks = ["${chomp(data.http.my-public-ip.response_body)}/32"]
   }
 
   egress {

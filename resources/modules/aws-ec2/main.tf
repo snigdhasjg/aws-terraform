@@ -99,9 +99,40 @@ resource "aws_instance" "this" {
   associate_public_ip_address          = true
   get_password_data                    = var.ami_type == "WINDOWS_SERVER_2019"
 
+#  user_data = <<-EOF
+#    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+#    sudo sh Miniconda3-latest-Linux-x86_64.sh -b -p /etc/miniconda
+#    rm -f Miniconda3-latest-Linux-x86_64.sh
+#
+#    sudo su - ec2-user
+#    /etc/miniconda/bin/conda init
+#    source ~/.bashrc
+#
+#    conda create --name huggingface -y python=3.9
+#    conda activate huggingface
+#
+#    sudo yum install -y amazon-linux-extras
+#    sudo amazon-linux-extras install epel -y
+#    sudo yum-config-manager --enable epel
+#    sleep 20
+#    sudo yum install -y git-lfs
+#    git lfs install
+#
+#    conda install -y pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+#    python -m pip install git+https://github.com/huggingface/peft.git
+#    python -m pip install xformers
+#
+#    python -m pip install -U autotrain-advanced
+#    autotrain setup
+#
+#    # Cleanup
+#    python -m pip cache remove *
+#    conda clean -ya
+#  EOF
+
   root_block_device {
     volume_type = "gp3"
-    volume_size = 200
+    volume_size = 100
   }
 
   vpc_security_group_ids = [

@@ -52,5 +52,5 @@ data "http" "my-public-ip" {
 }
 
 locals {
-  my-public-cidr = "${chomp(data.http.my-public-ip.body)}/32"
+  my-public-cidr = "${chomp(data.http.my-public-ip.response_body)}/32"
 }
