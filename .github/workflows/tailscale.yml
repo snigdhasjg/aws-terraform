@@ -21,9 +21,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    env:
-      TAILSCALE_OAUTH_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
-      TAILSCALE_OAUTH_CLIENT_SECRET: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
 
     steps:
       - name: Checkout
@@ -61,11 +58,17 @@ jobs:
       - name: Apply
         if: inputs.tf-destroy == false
         working-directory: tailscale
+        env:
+          TAILSCALE_OAUTH_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          TAILSCALE_OAUTH_CLIENT_SECRET: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
         run: |
           terraform apply -auto-approve
 
       - name: Destroy
         if: inputs.tf-destroy
         working-directory: tailscale
+        env:
+          TAILSCALE_OAUTH_CLIENT_ID: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          TAILSCALE_OAUTH_CLIENT_SECRET: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
         run: |
           terraform destroy -auto-approve
