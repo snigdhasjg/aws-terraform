@@ -29,4 +29,8 @@ provider "aws" {
 
 provider "tailscale" {
   user_agent = "terraform"
+
+  scopes = [
+    "devices"
+  ]
 }

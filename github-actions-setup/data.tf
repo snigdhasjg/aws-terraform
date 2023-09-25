@@ -76,13 +76,73 @@ data "aws_iam_policy_document" "github_actions_create" {
   }
 
   statement {
+    sid = "AllowManagingIAMRoleAndPolicy"
     effect = "Allow"
+
     actions = [
-      "ec2:DescribeAvailabilityZones"
+      "iam:CreateInstanceProfile",
+      "iam:DeleteInstanceProfile",
+      "iam:AddRoleToInstanceProfile",
+      "iam:RemoveRoleFromInstanceProfile",
+      "iam:UpdateAssumeRolePolicy",
+      "iam:UntagRole",
+      "iam:TagRole",
+      "iam:UpdateRoleDescription",
+      "iam:DeletePolicy",
+      "iam:CreateRole",
+      "iam:DeleteRole",
+      "iam:AttachRolePolicy",
+      "iam:PutRolePolicy",
+      "iam:TagPolicy",
+      "iam:CreatePolicy",
+      "iam:DetachRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:UntagPolicy",
+      "iam:CreatePolicyVersion",
+      "iam:UntagInstanceProfile",
+      "iam:DeletePolicyVersion",
+      "iam:TagInstanceProfile",
+      "iam:SetDefaultPolicyVersion",
+      "iam:PassRole",
     ]
-    resources = [
-      "*"
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "AllowManagingEC2Instance"
+    effect = "Allow"
+
+    actions = [
+      "ec2:AuthorizeSecurityGroupIngress",
+      "ec2:DeleteTags",
+      "ec2:UpdateSecurityGroupRuleDescriptionsIngress",
+      "ec2:StartInstances",
+      "ec2:CreateSecurityGroup",
+      "ec2:RevokeSecurityGroupEgress",
+      "ec2:RebootInstances",
+      "ec2:AuthorizeSecurityGroupEgress",
+      "ec2:UpdateSecurityGroupRuleDescriptionsEgress",
+      "ec2:DetachNetworkInterface",
+      "ec2:TerminateInstances",
+      "ec2:CreateTags",
+      "ec2:ResetNetworkInterfaceAttribute",
+      "ec2:ModifyNetworkInterfaceAttribute",
+      "ec2:DeleteNetworkInterface",
+      "ec2:RunInstances",
+      "ec2:ModifySecurityGroupRules",
+      "ec2:StopInstances",
+      "ec2:RevokeSecurityGroupIngress",
+      "ec2:CreateNetworkInterface",
+      "ec2:DeleteSecurityGroup",
+      "ec2:AttachNetworkInterface",
+      "ec2:ImportKeyPair",
+      "ec2:CreateKeyPair",
+      "ec2:DeleteKeyPair",
+      "ec2:ModifyInstanceAttribute"
     ]
+
+    resources = ["*"]
   }
 }
 

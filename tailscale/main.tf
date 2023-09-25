@@ -29,12 +29,6 @@ resource "tls_private_key" "rsa_key" {
   rsa_bits  = 2048
 }
 
-resource "local_file" "private_key_file" {
-  filename        = "${path.module}/key/ec2-private-key.pem"
-  content         = tls_private_key.rsa_key.private_key_pem
-  file_permission = "0400"
-}
-
 resource "aws_key_pair" "ec2_key" {
   key_name   = "tailscale-ec2-key"
   public_key = tls_private_key.rsa_key.public_key_openssh
@@ -66,13 +60,14 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_service_role.name
 }
 
-resource "tailscale_tailnet_key" "sample_key" {
+resource "tailscale_tailnet_key" "ec2-tailscale-key" {
   reusable      = false
   ephemeral     = true
   preauthorized = true
   expiry        = 3600
   description   = "aws-ec2-${formatdate("YYYYMMDDhhmmss", timestamp())}"
-  tags          = [
+
+  tags = [
     "tag:aws-ec2"
   ]
 }
@@ -92,7 +87,7 @@ resource "aws_instance" "this" {
     curl -fsSL https://tailscale.com/install.sh | sh
 
     tailscale up \
-      --auth-key ${tailscale_tailnet_key.sample_key.key} \
+      --auth-key ${tailscale_tailnet_key.ec2-tailscale-key.key} \
       --advertise-exit-node \
       --advertise-routes "${data.aws_vpc.this.cidr_block}" \
       --hostname "aws-ec2" \
