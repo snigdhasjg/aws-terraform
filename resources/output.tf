@@ -3,9 +3,9 @@
 #}
 
 #output "ssh_command" {
-#  value = module.aws-openvpn.ssh_command
-#}
-
-#output "ssh_command" {
 #  value = module.aws-ec2.ssh_command
 #}
+
+output "vpc_id" {
+  value = module.aws-network.vpc_id
+}

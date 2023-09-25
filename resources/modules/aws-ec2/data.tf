@@ -46,7 +46,7 @@ data "aws_ami" "windows_server_2019" {
 data "aws_ami" "amz_linux" {
   most_recent = true
   owners      = ["amazon"]
-  name_regex  = var.is_nvdia_enabled ? "^Deep Learning Base AMI \\(Amazon Linux 2\\).*" : "^amzn2-ami-kernel-5.10-hvm-.*-x86_64.*"
+  name_regex  = var.is_nvidia_enabled ? "^Deep Learning Base AMI \\(Amazon Linux 2\\).*" : "^amzn2-ami-kernel-5.10-hvm-.*-x86_64.*"
 
   filter {
     name   = "architecture"

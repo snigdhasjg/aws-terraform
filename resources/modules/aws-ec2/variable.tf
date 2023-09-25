@@ -28,8 +28,8 @@ variable "ami_type" {
   }
 }
 
-variable "is_nvdia_enabled" {
-  description = "Is NVDIA enabled"
+variable "is_nvidia_enabled" {
+  description = "Is NVIDIA enabled"
   type        = bool
 }
 
