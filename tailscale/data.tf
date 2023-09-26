@@ -13,7 +13,8 @@ data "aws_subnets" "public-subnets" {
     values = [data.aws_vpc.this.id]
   }
   filter {
-    name   = "tag:connectivity"
+    name = "tag:connectivity"
+
     values = [
       "public"
     ]
