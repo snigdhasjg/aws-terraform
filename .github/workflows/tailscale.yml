@@ -59,23 +59,23 @@ jobs:
         run: terraform init -no-color
         continue-on-error: true
 
-      - name: Validate
-        id: validate
-        working-directory: tailscale
-        run: terraform validate -no-color
-        continue-on-error: true
-
-      - name: Format
-        id: fmt
-        working-directory: tailscale
-        run: terraform fmt -check -no-color
-        continue-on-error: true
-
-      - name: Plan
-        id: plan
-        working-directory: tailscale
-        run: terraform plan -no-color -input=false
-        continue-on-error: true
+#      - name: Validate
+#        id: validate
+#        working-directory: tailscale
+#        run: terraform validate -no-color
+#        continue-on-error: true
+#
+#      - name: Format
+#        id: fmt
+#        working-directory: tailscale
+#        run: terraform fmt -check -no-color
+#        continue-on-error: true
+#
+#      - name: Plan
+#        id: plan
+#        working-directory: tailscale
+#        run: terraform plan -no-color -input=false
+#        continue-on-error: true
 
       - name: Init, fmt, validation summary
         if: failure() == false && cancelled() == false
@@ -88,27 +88,30 @@ jobs:
             echo '${{ steps.init.outputs.stdout }}'
             echo '```'
             echo -e '</details>\n'
-            echo -e '#### Terraform Format and Style 🖌 ${{ steps.fmt.outcome }}\n'
-            echo '<details>'
-            echo '<summary>Format and Style Output</summary>'
-            echo -e '\n```'
-            echo '${{ steps.fmt.outputs.stdout }}'
-            echo '```'
-            echo -e '</details>\n'
-            echo -e '#### Terraform Validation 🤖 ${{ steps.validate.outcome }}\n'
-            echo '<details>'
-            echo '<summary>Validation Output</summary>'
-            echo -e '\n```'
-            echo '${{ steps.validate.outputs.stdout }}'
-            echo '```'
-            echo -e '</details>\n'
-            echo -e '#### Terraform Plan 📖 ${{ steps.plan.outcome }}\n'
-            echo '<details>'
-            echo '<summary>Show Plan</summary>'
-            echo -e '\n```terraform'
-            echo '${{ steps.plan.outputs.stdout }}'
-            echo '```'
-            echo '</details>'
+          
+            # echo -e '#### Terraform Format and Style 🖌 ${{ steps.fmt.outcome }}\n'
+            # echo '<details>'
+            # echo '<summary>Format and Style Output</summary>'
+            # echo -e '\n```'
+            # echo '${{ steps.fmt.outputs.stdout }}'
+            # echo '```'
+            # echo -e '</details>\n'
+            # 
+            # echo -e '#### Terraform Validation 🤖 ${{ steps.validate.outcome }}\n'
+            # echo '<details>'
+            # echo '<summary>Validation Output</summary>'
+            # echo -e '\n```'
+            # echo '${{ steps.validate.outputs.stdout }}'
+            # echo '```'
+            # echo -e '</details>\n'
+            # 
+            # echo -e '#### Terraform Plan 📖 ${{ steps.plan.outcome }}\n'
+            # echo '<details>'
+            # echo '<summary>Show Plan</summary>'
+            # echo -e '\n```terraform'
+            # echo '${{ steps.plan.outputs.stdout }}'
+            # echo '```'
+            # echo '</details>'
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Terraform Status

@@ -24,7 +24,7 @@ data "aws_subnets" "public-subnets" {
 data "aws_ami" "amz_linux" {
   most_recent = true
   owners      = ["amazon"]
-  name_regex  = "^amzn2-ami-kernel-5.10-hvm-.*-x86_64.*"
+  name_regex  = "^al2023-ami-[\\d\\.]+-kernel-6.1-x86_64"
 
   filter {
     name   = "architecture"
