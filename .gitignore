@@ -37,3 +37,5 @@ override.tf.json
 *.ovpn
 **/aws-s3/data/*
 !.gitkeep
+
+.envrc
