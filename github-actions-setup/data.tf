@@ -173,7 +173,8 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
       variable = "token.actions.githubusercontent.com:sub"
 
       values = [
-        "repo:snigdhasjg/aws-terraform:environment:sandbox"
+        "repo:snigdhasjg/aws-terraform:environment:sandbox",
+        "repo:snigdhasjg/tailscale:environment:sandbox"
       ]
     }
   }
