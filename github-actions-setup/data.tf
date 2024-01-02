@@ -174,7 +174,8 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
 
       values = [
         "repo:snigdhasjg/aws-terraform:environment:sandbox",
-        "repo:snigdhasjg/tailscale:environment:sandbox"
+        "repo:snigdhasjg/tailscale:environment:sandbox",
+        "repo:snigdhasjg/Fooocus:environment:sandbox"
       ]
     }
   }
