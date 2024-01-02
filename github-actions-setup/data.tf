@@ -144,6 +144,22 @@ data "aws_iam_policy_document" "github_actions_create" {
 
     resources = ["*"]
   }
+
+  statement {
+    sid = "AllowManagingEC2SpotInstance"
+    effect = "Allow"
+
+    actions = [
+      "ec2:DescribeSpotPriceHistory",
+      "ec2:CancelSpotInstanceRequests",
+      "ec2:RequestSpotInstances",
+      "ec2:SendSpotInstanceInterruptions",
+      "ec2:DescribeSpotInstanceRequests",
+      "iam:CreateServiceLinkedRole"
+    ]
+
+    resources = ["*"]
+  }
 }
 
 data "aws_iam_policy_document" "github_actions_assume_role" {
