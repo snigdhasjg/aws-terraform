@@ -24,6 +24,7 @@ resource "aws_subnet" "public_subnets" {
   tags = {
     Name         = "${var.tag_prefix}-public-subnet-${trimprefix(each.value.availability_zone, data.aws_region.this.name)}"
     connectivity = "public"
+    zone         = trimprefix(each.value.availability_zone, data.aws_region.this.name)
   }
 }
 
@@ -42,6 +43,7 @@ resource "aws_subnet" "private_subnets" {
   tags = {
     Name         = "${var.tag_prefix}-private-subnet-${trimprefix(each.value.availability_zone, data.aws_region.this.name)}"
     connectivity = "private"
+    zone         = trimprefix(each.value.availability_zone, data.aws_region.this.name)
   }
 }
 
@@ -86,7 +88,7 @@ resource "aws_nat_gateway" "public_nat" {
 }
 
 resource "aws_route_table_association" "nat_association" {
-  count          = var.create_nat_gateway ? 1 : 0
+  count = var.create_nat_gateway ? 1 : 0
 
   route_table_id = aws_default_route_table.this.id
   gateway_id     = aws_nat_gateway.public_nat[0].id

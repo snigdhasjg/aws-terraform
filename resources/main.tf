@@ -32,7 +32,7 @@ module "aws-network" {
   create_nat_gateway        = false
   vpc_cidr_block            = "10.2.0.0/20"
   no_of_private_subnet      = 3
-  no_of_public_subnet       = 2
+  no_of_public_subnet       = 3
   private_endpoint_gateways = [
     #    "s3"
   ]
